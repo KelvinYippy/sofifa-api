@@ -7,23 +7,6 @@ from bs4 import BeautifulSoup
 
 router = APIRouter()
 
-def split_country_league(text: str):
-    print(text)
-    is_country = False
-    country = ""
-    league = ""
-    for c in text:
-        if c == "[":
-            is_country = True
-        elif c == "]":
-            is_country = False
-        else:
-            if is_country:
-                country += c
-            elif not (c == " " and len(league) == 0):
-                league += c
-    return country, league
-
 
 @router.get("/", response_model=list[Team])
 async def get_teams(type: TeamType = TeamType.TRENDING):
@@ -42,8 +25,8 @@ async def get_teams(type: TeamType = TeamType.TRENDING):
         name = basic_info[0].text
         crest = team.find("td", class_="col-avatar").find("img")["data-src"]
         squad_size = team.find("td", class_="col col-ps").text
-        country_league_text = basic_info[1].text
-        country, league = split_country_league(country_league_text)
+        country = basic_info[1].find("a")["title"]
+        league = basic_info[1].text[1:]
         result.append(Team(
             name=name,
             crest=crest,
@@ -58,7 +41,9 @@ async def get_team_by_id(soup: BeautifulSoup = Depends(valid_team)):
     team_info = soup.find("div", class_="bp3-card player")
     name = team_info.find("div", class_="info").find("h1").text
     crest = team_info.find("img")["data-src"]
-    country, league = split_country_league(team_info.find("div", class_="info").find("div", class_="meta ellipsis").text)
+    location_info = team_info.find("div", class_="info").find("div", class_="meta ellipsis")
+    country = location_info.find("a")["title"]
+    league = location_info.text
     squad_size = len(soup.find("tbody").find_all("tr"))
     return Team(
         name=name,
