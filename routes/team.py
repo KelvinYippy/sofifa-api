@@ -21,12 +21,16 @@ async def get_teams(type: TeamType = TeamType.TRENDING):
     teams = team_table.find_all("tr")
     result = []
     for team in teams:
-        basic_info = team.find("td", class_="col-name-wide").find_all("div", class_="ellipsis")
+        basic_info = team.find("td", class_="s20").find_all("a")
         name = basic_info[0].text
-        crest = team.find("td", class_="col-avatar").find("img")["data-src"]
-        squad_size = team.find("td", class_="col col-ps").text
-        country = basic_info[1].find("a")["title"]
-        league = basic_info[1].text[1:]
+        crest = team.find("td", class_="a1").find("img")["data-src"]
+        squad_size = team.find("td", attrs={"data-col": "ps"}).text
+        if len(basic_info) > 1:
+            country = basic_info[1].find("img")["title"]
+            league = basic_info[1].text[1:]
+        else:
+            country = basic_info[0].text
+            league = "Friendly International"
         result.append(Team(
             name=name,
             crest=crest,
@@ -38,10 +42,10 @@ async def get_teams(type: TeamType = TeamType.TRENDING):
 
 @router.get("/{id}", response_model=Team)
 async def get_team_by_id(soup: BeautifulSoup = Depends(valid_team)):
-    team_info = soup.find("div", class_="bp3-card player")
-    name = team_info.find("div", class_="info").find("h1").text
+    team_info = soup.find("div", class_="profile clearfix")
+    name = team_info.find("h1").text
     crest = team_info.find("img")["data-src"]
-    location_info = team_info.find("div", class_="info").find("div", class_="meta ellipsis")
+    location_info = team_info.find("p")
     country = location_info.find("a")["title"]
     league = location_info.text
     squad_size = len(soup.find("tbody").find_all("tr"))

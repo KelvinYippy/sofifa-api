@@ -11,11 +11,11 @@ async def get_players():
     player_table = soup.find("tbody")
     players = player_table.find_all("tr")
     players = [Player(
-        name=player.find("td", class_="col-name").find("a", role="tooltip").get_text(),
-        age=player.find("td", class_="col col-ae").get_text(),
-        overall=player.find("td", class_="col col-oa").get_text(),
-        potential=player.find("td", class_="col col-pt").get_text(),
-        positions=[position.get_text() for position in player.find("td", class_="col-name").find_all("a", rel="nofollow")]
+        name=player.find("a", attrs={"data-tippy-content": True}).get_text(),
+        age=player.find("td", attrs={"data-col": "ae"}).get_text(),
+        overall=player.find("td", attrs={"data-col": "oa"}).find("em").get_text(),
+        potential=player.find("td", attrs={"data-col": "pt"}).find("em").get_text(),
+        positions=[position.get_text() for position in player.find_all("td")[1].find_all("a", rel="nofollow")]
     ) for player in players]
     return players
 
