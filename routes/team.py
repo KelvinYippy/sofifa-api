@@ -47,7 +47,7 @@ async def get_team_by_id(soup: BeautifulSoup = Depends(valid_team)):
     crest = team_info.find("img")["data-src"]
     location_info = team_info.find("p")
     country = location_info.find("a")["title"]
-    league = location_info.text
+    league = location_info.text.strip()
     squad_size = len(soup.find("tbody").find_all("tr"))
     return Team(
         name=name,
@@ -60,11 +60,11 @@ async def get_team_by_id(soup: BeautifulSoup = Depends(valid_team)):
 def get_players(soup: BeautifulSoup, class_name: str):
     players = soup.find("tbody").find_all("tr", class_=class_name)
     players = [Player(
-        name=player.find("td", class_="col-name").find("a", role="tooltip").get_text(),
-        age=player.find("td", class_="col col-ae").get_text(),
-        overall=player.find("td", class_="col col-oa").get_text(),
-        potential=player.find("td", class_="col col-pt").get_text(),
-        positions=[position.get_text() for position in player.find("td", class_="col-name").find_all("a", rel="nofollow")]
+        name=player.find_all("td")[1].find("a").get_text(),
+        age=player.find("td", {"data-col": "ae"}).get_text(),
+        overall=player.find("td", {"data-col": "oa"}).get_text(),
+        potential=player.find("td", {"data-col": "pt"}).get_text(),
+        positions=[position.get_text() for position in player.find_all("td")[1].find_all("a", rel="nofollow")]
     ) for player in players]
     return players
 

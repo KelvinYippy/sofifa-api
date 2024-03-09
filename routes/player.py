@@ -22,12 +22,12 @@ async def get_players():
 @router.get("/position-abilities/{id}", response_model=dict[str, int])
 async def get_player_position_abilities(soup= Depends(valid_player)):
     lineup = soup.find("div", class_="lineup")
-    positions = lineup.find_all("div", class_="grid half-spacing")
+    positions = lineup.find_all("div", class_="grid text-center")
     position_map = {}
     for row in positions:
-        row_positions = row.find_all("div", class_="col col-2")
+        row_positions = row.find_all("div", class_="col col-1-5")
         for row_position in row_positions:
-            position = row_position.find("div", class_="bp3-tag")
+            position = row_position.find("div", class_="pos")
             if position != None:
                 position_text: str = position.text
                 position = position_text[:-4]
