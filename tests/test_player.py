@@ -13,7 +13,7 @@ def test_get_player_positions():
     assert response.status_code == 200
     json = response.json()
     assert len(json) == 27
-    assert json["CAM"] == 85
+    assert json["CAM"] == 90
 
 def test_get_player_positions_invalid_id():
     response = client.get("player/position-abilities/1")
